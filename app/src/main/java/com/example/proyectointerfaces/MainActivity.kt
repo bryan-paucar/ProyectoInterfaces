@@ -10,14 +10,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,8 +40,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,6 +76,7 @@ fun AppScaffold() {
 
     // 🔹 Crear el ViewModel aquí para que se mantenga en toda la app
     val temperaturaViewModel: TemperaturaViewModel = viewModel()
+    val horasViewModel: HorasViewModel = viewModel() // ViewModel compartido
 
     Scaffold(
         topBar = { AppTopBar() },
@@ -76,7 +91,7 @@ fun AppScaffold() {
                     TemperaturaScreen(padding = paddingValues, viewModel = temperaturaViewModel) // Pasamos el ViewModel
                 }
                 composable(Screen.Horas.route) {
-                    HorasScreen(padding = paddingValues)
+                    HorasScreen(padding = paddingValues, viewModel = horasViewModel)
                 }
                 composable(Screen.Contactos.route) {
                     ContactosScreen(padding = paddingValues)
@@ -85,8 +100,6 @@ fun AppScaffold() {
         }
     )
 }
-
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -139,8 +152,6 @@ fun AppTopBar() {
         )
     )
 }
-
-
 
 /*
 @Composable
@@ -241,7 +252,6 @@ fun AppBottomBar(navController: NavController) {
     }
 }
 
-
 @Composable
 fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
     Column(
@@ -250,25 +260,39 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             .padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Convertimos la temperatura si es necesario
         val temperaturaActual = if (viewModel.mostrarEnCelsius.value) {
             viewModel.temperatura.value
         } else {
-            (viewModel.temperatura.value * 9 / 5) + 32 // Conversión a Fahrenheit
+            (viewModel.temperatura.value * 9 / 5) + 32
         }
+
+        val unidad = if (viewModel.mostrarEnCelsius.value) "C" else "F"
+
+        // Imagen de fondo
+        val imagenRes = when (viewModel.temperatura.value) {
+            in -30f..11f -> R.drawable.frio
+            in 11f..25f -> R.drawable.templado
+            else -> R.drawable.calor
+        }
+
+        Image(
+            painter = painterResource(id = imagenRes),
+            contentDescription = "Imagen representativa de la temperatura",
+            modifier = Modifier
+                .size(200.dp) // 🔹 Reducimos el tamaño para dejar más espacio
+        )
+
 
         // Texto con la temperatura actual
         Text(
-            text = "${temperaturaActual.toInt()}°${if (viewModel.mostrarEnCelsius.value) "C" else "F"}",
+            text = "${temperaturaActual.toInt()}°$unidad",
             style = MaterialTheme.typography.headlineLarge
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Switch para cambiar entre °C y °F
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text("°C")
             Switch(
                 checked = !viewModel.mostrarEnCelsius.value,
@@ -282,22 +306,169 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
         // Slider para seleccionar la temperatura
         Slider(
             value = viewModel.temperatura.value,
-            onValueChange = { nuevaTemperatura -> viewModel.temperatura.value = nuevaTemperatura },
+            onValueChange = { nuevaTemperatura ->
+                viewModel.temperatura.value = nuevaTemperatura
+            },
             valueRange = -30f..55f
         )
 
-        // Mostrar ambas temperaturas
-        Text("${viewModel.temperatura.value.toInt()}°C / ${(viewModel.temperatura.value * 9 / 5 + 32).toInt()}°F")
+        // Botón para agregar la temperatura al historial
+        Button(
+            onClick = { viewModel.agregarTemperatura() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+        ) {
+            Text("Guardar temperatura", color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Historial de temperaturas (últimas 50) con iconos
+        Text("Historial de temperaturas:", style = MaterialTheme.typography.titleMedium)
+
+        LazyColumn(modifier = Modifier.fillMaxHeight()) {
+            items(viewModel.historial.reversed()) { temp ->
+                val tempFahrenheit = (temp * 9 / 5) + 32
+                val iconoRes = when (temp) {
+                    in -30f..12f -> R.drawable.frio
+                    in 13f..25f -> R.drawable.templado
+                    else -> R.drawable.calor
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
+                    Image(
+                        painter = painterResource(id = iconoRes),
+                        contentDescription = "Icono de temperatura",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("${temp.toInt()}°C - ${tempFahrenheit.toInt()}°F")
+                }
+            }
+        }
     }
 }
 
 
-
-
 @Composable
-fun HorasScreen(padding: PaddingValues) {
-    Text(text = "Pantalla de Horas en Diferentes Ciudades")
+fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding),
+            //.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // 🔹 Selector de ciudades en horizontal (LazyRow)
+        LazyRow(modifier = Modifier.fillMaxWidth()) {
+            items(viewModel.obtenerHorasEnCiudades().keys.toList()) { ciudad ->
+                Button(
+                    onClick = { viewModel.seleccionarCiudad(ciudad) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (viewModel.ciudadSeleccionada.value == ciudad) Color.Blue else Color.Gray
+                    ),
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                ) {
+                    Text(ciudad, color = Color.White)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Sección de la ciudad seleccionada con disposición horizontal
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 🔹 Columna izquierda (Mapa + Nombre de la ciudad)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(
+                        id = viewModel.mapaDePaises[viewModel.ciudadSeleccionada.value]!!
+                    ), // Se carga el mapa correspondiente
+                    contentDescription = "Mapa de ${viewModel.ciudadSeleccionada.value}",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(8.dp)
+                )
+                Text(
+                    text = viewModel.ciudadSeleccionada.value,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+
+            // 🔹 Columna derecha (Hora en grande + Selector de hora)
+            Column(
+                modifier = Modifier
+                    .padding(start = 5.dp)
+            ) {
+                var expanded by remember { mutableStateOf(false) }
+                Button(onClick = { expanded = true }) {
+                    Text(viewModel.horaSeleccionada.value, style = MaterialTheme.typography.headlineLarge)
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    viewModel.listaHoras.forEach { hora ->
+                        DropdownMenuItem(
+                            text = { Text(hora) },
+                            onClick = {
+                                viewModel.actualizarHora(hora)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Lista de horas en otras ciudades
+        LazyColumn {
+            items(viewModel.obtenerHorasEnCiudades().entries.toList()) { (ciudad, hora) ->
+                if (ciudad != viewModel.ciudadSeleccionada.value) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(
+                                    id = viewModel.mapaDePaises[ciudad]!!
+                                ), // Se carga el mapa específico
+                                contentDescription = "Mapa de $ciudad",
+                                modifier = Modifier.size(80.dp)
+                            )
+                            Text(
+                                text = ciudad,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        // 🔹 Texto con la hora en paralelo al mapa
+                        Text(
+                            text = hora,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
+
 
 @Composable
 fun ContactosScreen(padding: PaddingValues) {
