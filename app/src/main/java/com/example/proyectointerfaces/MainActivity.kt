@@ -48,37 +48,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.proyectointerfaces.ui.theme.AppTheme
-import com.example.proyectointerfaces.ui.theme.AppTypography
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme {
-
-            }
+            AppTheme {}
         }
     }
 }
 
+/**
+ * AppScaffold es el componente principal de la aplicación que proporciona la estructura base de la UI.
+ *
+ * - Implementa una barra superior y una barra inferior a través de `AppTopBar` y `AppBottomBar`.
+ * - Maneja la navegación entre diferentes pantallas usando un `NavController` y un `NavHost`.
+ * - Mantiene el estado de la aplicación mediante ViewModels compartidos: `TemperaturaViewModel`, `HorasViewModel` y `ContactosViewModel`.
+ *
+ * Pantallas incluidas:
+ * 1. `TemperaturaScreen` para mostrar conversiones de temperatura.
+ * 2. `HorasScreen` para mostrar la hora en diferentes ciudades.
+ * 3. `ContactosScreen` para mostrar una lista de contactos.
+ */
 @Composable
 fun AppScaffold() {
     val navController = rememberNavController()
 
-    // 🔹 Crear el ViewModel aquí para que se mantenga en toda la app
+    // Crear el ViewModel aquí para que se mantenga en toda la app
     val temperaturaViewModel: TemperaturaViewModel = viewModel()
     val horasViewModel: HorasViewModel = viewModel() // ViewModel compartido
     val contactosViewModel: ContactosViewModel = viewModel()
@@ -103,10 +109,37 @@ fun AppScaffold() {
             }
         }
     )
-
 }
 
+/**
+ * Clase sellada (`sealed class`) que define las rutas de navegación dentro de la aplicación.
+ *
+ * Cada objeto dentro de `Screen` representa una pantalla específica con su correspondiente `route`:
+ * - `Temperatura` → Ruta: `"temperatura"`
+ * - `Horas` → Ruta: `"horas"`
+ * - `Contactos` → Ruta: `"contactos"`
+ *
+ * Esta clase se utiliza en conjunto con `NavController` para gestionar la navegación entre pantallas.
+ */
+sealed class Screen(val route: String) {
+    object Temperatura : Screen("temperatura")
+    object Horas : Screen("horas")
+    object Contactos : Screen("contactos")
+}
 
+/**
+ * Composable que representa la barra superior de la aplicación.
+ *
+ * @OptIn(ExperimentalMaterial3Api::class) Se utiliza la API experimental de Material 3 para `TopAppBar`.
+ *
+ * La barra superior incluye:
+ * - Un logotipo (`Image`) alineado a la izquierda.
+ * - Dos botones de acción (`IconButton`):
+ *   - **Configuración** (`Settings`): Actualmente sin funcionalidad.
+ *   - **Inicio de sesión** (`AccountBox`): Actualmente sin funcionalidad.
+ *
+ * @Composable
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar() {
@@ -114,18 +147,13 @@ fun AppTopBar() {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = "Logo",
-                    modifier = Modifier.size(64.dp) // 🔹 Tamaño ajustado para no desbalancear la barra
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Splatnot",
-                    style = MaterialTheme.typography.titleLarge, // 🔹 Aplica la tipografía del tema
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    modifier = Modifier.size(200.dp) // Tamaño ajustado para no desbalancear la barra
                 )
             }
         },
@@ -134,7 +162,7 @@ fun AppTopBar() {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer // 🔹 Asegura contraste
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer // Asegura contraste
                 )
             }
             IconButton(onClick = { /* Sin funcionalidad, es estático */ }) {
@@ -151,7 +179,6 @@ fun AppTopBar() {
         )
     )
 }
-
 
 /*
 @Composable
@@ -186,11 +213,28 @@ fun AppBottomBar(navController: NavController) {
 }
 */
 
+/**
+ * Composable que representa la barra de navegación inferior de la aplicación.
+ *
+ * @param navController Controlador de navegación (`NavController`) utilizado para gestionar la navegación entre pantallas.
+ *
+ * La barra inferior contiene tres elementos de navegación (`NavigationBarItem`):
+ * - **Temperatura**: Navega a la pantalla de conversión de temperatura.
+ * - **Horas**: Navega a la pantalla de horarios en diferentes ciudades.
+ * - **Contactos**: Navega a la pantalla de contactos.
+ *
+ * Cada elemento incluye:
+ * - Un **icono** representativo.
+ * - Un **texto descriptivo** con la tipografía del tema.
+ * - Un indicador visual de selección basado en la ruta actual.
+ *
+ * @Composable
+ */
 @Composable
 fun AppBottomBar(navController: NavController) {
     NavigationBar(
         modifier = Modifier.height(56.dp),
-        containerColor = MaterialTheme.colorScheme.primaryContainer // 🔹 Fondo corporativo
+        containerColor = MaterialTheme.colorScheme.primaryContainer // Fondo corporativo
     ) {
         NavigationBarItem(
             selected = navController.currentDestination?.route == Screen.Temperatura.route,
@@ -198,8 +242,8 @@ fun AppBottomBar(navController: NavController) {
             label = {
                 Text(
                     text = "Temperatura",
-                    style = MaterialTheme.typography.labelSmall, // 🔹 Aplica tipografía del tema
-                    color = MaterialTheme.colorScheme.onPrimaryContainer // 🔹 Asegura contraste
+                    style = MaterialTheme.typography.labelSmall, // Aplica tipografía del tema
+                    color = MaterialTheme.colorScheme.onPrimaryContainer // Asegura contraste
                 )
             },
             icon = {
@@ -207,7 +251,7 @@ fun AppBottomBar(navController: NavController) {
                     painter = painterResource(id = R.drawable.temp),
                     contentDescription = "Temperatura",
                     modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer // 🔹 Mismo color que el texto
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer // Mismo color que el texto
                 )
             }
         )
@@ -253,13 +297,29 @@ fun AppBottomBar(navController: NavController) {
 }
 
 
+/**
+ * Composable que representa la pantalla de conversión de temperatura.
+ *
+ * @param padding Espaciado superior proporcionado por `Scaffold` para evitar superposiciones.
+ * @param viewModel Instancia de `TemperaturaViewModel` utilizada para gestionar el estado de la pantalla.
+ *
+ * La pantalla permite:
+ * - **Visualizar la temperatura actual** en Celsius o Fahrenheit.
+ * - **Cambiar la unidad de temperatura** mediante un `Switch`.
+ * - **Ajustar la temperatura** utilizando un `Slider` (rango: -30°C a 55°C).
+ * - **Guardar la temperatura en un historial** (últimas 50 temperaturas registradas).
+ * - **Mostrar una imagen representativa** del clima según la temperatura.
+ * - **Desplegar un historial de temperaturas** con íconos que representan el clima frío, templado o cálido.
+ *
+ * @Composable
+ */
 @Composable
 fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .background(MaterialTheme.colorScheme.secondaryContainer), // 🔹 Fondo con color secundario
+            .background(MaterialTheme.colorScheme.secondaryContainer), // Fondo con color secundario
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val temperaturaActual = if (viewModel.mostrarEnCelsius.value) {
@@ -281,14 +341,14 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             painter = painterResource(id = imagenRes),
             contentDescription = "Imagen temperatura",
             modifier = Modifier
-                .size(200.dp) // 🔹 Ajuste de tamaño para mejorar espacio
+                .size(200.dp) // Ajuste de tamaño para mejorar espacio
         )
 
         // Texto con la temperatura actual
         Text(
             text = "${temperaturaActual.toInt()}°$unidad",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onSecondaryContainer // 🔹 Texto con color de alto contraste sobre fondo secundario
+            color = MaterialTheme.colorScheme.onSecondaryContainer // Texto con color de alto contraste sobre fondo secundario
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -332,7 +392,7 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Historial de temperaturas (últimas 50) con iconos
+        // Historial de temperaturas (últimas 50) con iconos
         Text("Historial de temperaturas:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
 
         LazyColumn(modifier = Modifier.fillMaxHeight()) {
@@ -358,22 +418,42 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
     }
 }
 
-
-
+/**
+ * Composable que representa la pantalla de visualización de horas en diferentes ciudades.
+ *
+ * @param padding Espaciado superior proporcionado por `Scaffold` para evitar superposiciones.
+ * @param viewModel Instancia de `HorasViewModel` utilizada para gestionar el estado de la pantalla.
+ *
+ * La pantalla permite:
+ * - **Seleccionar una ciudad** desde un `LazyRow` con botones de selección.
+ * - **Mostrar la hora de la ciudad seleccionada** con un mapa del país correspondiente.
+ * - **Modificar la hora de la ciudad seleccionada** a través de un `DropdownMenu`.
+ * - **Listar las horas de otras ciudades** en una `LazyColumn`, mostrando:
+ *   - Mapa del país correspondiente.
+ *   - Nombre de la ciudad.
+ *   - Hora local.
+ *
+ * Diseño y estilos:
+ * - Utiliza colores de `MaterialTheme` para mantener coherencia visual.
+ * - Diferencia secciones con fondos secundarios y terciarios.
+ * - Usa iconografía y mapas representativos para cada ciudad.
+ *
+ * @Composable
+ */
 @Composable
 fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .background(MaterialTheme.colorScheme.surfaceContainer), // 🔹 Fondo con color neutro
+            .background(MaterialTheme.colorScheme.surfaceContainer), // Fondo con color neutro
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 🔹 Selector de ciudades en horizontal (LazyRow)
+        // Selector de ciudades en horizontal (LazyRow)
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondaryContainer), // 🔹 Fondo con color secundario
+                .background(MaterialTheme.colorScheme.secondaryContainer), // Fondo con color secundario
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(viewModel.obtenerHorasEnCiudades().keys.toList()) { ciudad ->
@@ -381,7 +461,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                     onClick = { viewModel.seleccionarCiudad(ciudad) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (viewModel.ciudadSeleccionada.value == ciudad)
-                            MaterialTheme.colorScheme.secondary // 🔹 Resalta la ciudad seleccionada
+                            MaterialTheme.colorScheme.secondary // Resalta la ciudad seleccionada
                         else
                             MaterialTheme.colorScheme.secondaryContainer
                     ),
@@ -398,21 +478,21 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Sección de la ciudad seleccionada con disposición horizontal
+        // Sección de la ciudad seleccionada con disposición horizontal
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceVariant), // 🔹 Fondo más neutro
+                .background(MaterialTheme.colorScheme.surfaceVariant), // Fondo más neutro
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 🔹 Columna izquierda (Mapa + Nombre de la ciudad)
+            // Columna izquierda (Mapa + Nombre de la ciudad)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(
                         id = viewModel.mapaDePaises[viewModel.ciudadSeleccionada.value]!!
-                    ), // 🔹 Se carga el mapa correspondiente
+                    ), // Se carga el mapa correspondiente
                     contentDescription = "Mapa de ${viewModel.ciudadSeleccionada.value}",
                     modifier = Modifier
                         .size(150.dp)
@@ -425,7 +505,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                 )
             }
 
-            // 🔹 Columna derecha (Hora en grande + Selector de hora)
+            // Columna derecha (Hora en grande + Selector de hora)
             Column(
                 modifier = Modifier.padding(start = 5.dp)
             ) {
@@ -438,8 +518,8 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                 ) {
                     Text(
                         viewModel.horaSeleccionada.value,
-                        style = MaterialTheme.typography.headlineLarge, // 🔹 La hora debe ser grande y visible
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onSecondary
                     )
                 }
                 DropdownMenu(
@@ -448,7 +528,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                 ) {
                     viewModel.listaHoras.forEach { hora ->
                         DropdownMenuItem(
-                            text = { Text(hora, color = MaterialTheme.colorScheme.onSecondaryContainer) },
+                            text = { Text(hora, color = MaterialTheme.colorScheme.secondary) },
                             onClick = {
                                 viewModel.actualizarHora(hora)
                                 expanded = false
@@ -461,7 +541,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Lista de horas en otras ciudades
+        // Lista de horas en otras ciudades
         LazyColumn {
             items(viewModel.obtenerHorasEnCiudades().entries.toList()) { (ciudad, hora) ->
                 if (ciudad != viewModel.ciudadSeleccionada.value) {
@@ -470,7 +550,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .background(MaterialTheme.colorScheme.tertiaryContainer) // 🔹 Fondo con color terciario
+                            .background(MaterialTheme.colorScheme.tertiaryContainer) // Fondo con color terciario
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -479,7 +559,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                             Image(
                                 painter = painterResource(
                                     id = viewModel.mapaDePaises[ciudad]!!
-                                ), // 🔹 Se carga el mapa específico
+                                ), // Se carga el mapa específico
                                 contentDescription = "Mapa de $ciudad",
                                 modifier = Modifier.size(80.dp)
                             )
@@ -490,7 +570,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                             )
                         }
 
-                        // 🔹 Texto con la hora en paralelo al mapa
+                        // Texto con la hora en paralelo al mapa
                         Text(
                             text = hora,
                             style = MaterialTheme.typography.headlineSmall,
@@ -506,17 +586,35 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
     }
 }
 
+/**
+ * Composable que representa la pantalla de contacto con información de oficinas y servicios en distintas ciudades.
+ *
+ * @param padding Espaciado superior proporcionado por `Scaffold` para evitar superposiciones.
+ * @param viewModel Instancia de `ContactosViewModel` utilizada para gestionar el estado de la pantalla.
+ *
+ * La pantalla permite:
+ * - **Seleccionar una ciudad y un servicio** mediante `DropDownMenus`.
+ * - **Mostrar un mapa de la ciudad seleccionada** con el número de teléfono sobreimpreso.
+ * - **Visualizar el nombre de la ciudad** debajo del mapa.
+ * - **Mostrar información de contacto** (nombre, teléfono y email) cuando el servicio seleccionado es "Oficina".
+ *
+ * Diseño y estilos:
+ * - Usa colores de `MaterialTheme` para mantener coherencia visual.
+ * - Resalta el mapa con un fondo terciario.
+ * - Asegura legibilidad del teléfono sobre el mapa con un contraste adecuado.
+ *
+ * @Composable
+ */
 @Composable
 fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            //.padding(16.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainer), // 🔹 Fondo neutro
+            .background(MaterialTheme.colorScheme.surfaceContainer), // Fondo neutro
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 🔹 Selector de ciudad y servicio (DropDownMenus)
+        // Selector de ciudad y servicio (DropDownMenus)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -527,11 +625,11 @@ fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = view
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Mapa con teléfono sobreimpreso
+        // Mapa con teléfono sobreimpreso
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.tertiaryContainer), // 🔹 Fondo del mapa resaltado
+                .background(MaterialTheme.colorScheme.tertiaryContainer), // Fondo del mapa resaltado
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -543,14 +641,14 @@ fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = view
             )
             Text(
                 text = viewModel.obtenerTelefono(),
-                style = MaterialTheme.typography.headlineSmall, // 🔹 Tamaño adecuado para el teléfono
+                style = MaterialTheme.typography.headlineSmall, // Tamaño adecuado para el teléfono
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 🔹 Nombre de la ciudad debajo del mapa
+        // Nombre de la ciudad debajo del mapa
         Text(
             text = viewModel.ciudadSeleccionada.value,
             style = MaterialTheme.typography.titleLarge,
@@ -559,15 +657,33 @@ fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = view
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Información del contacto (si aplica)
-        val contacto = viewModel.obtenerContacto()
-        contacto?.let {
-            ContactoDetalles(it)
+        // Mostrar información del contacto solo si el servicio es "Oficina"
+        if (viewModel.servicioSeleccionado.value == "Oficina") {
+            val contacto = viewModel.obtenerContacto()
+            contacto?.let {
+                ContactoDetalles(it)
+            }
         }
     }
 }
 
-// 🔹 Composable para el selector de ciudad
+/**
+ * Composable que permite seleccionar una ciudad a través de un `DropdownMenu`.
+ *
+ * @param viewModel Instancia de `ContactosViewModel` utilizada para obtener y actualizar la ciudad seleccionada.
+ *
+ * Funcionalidad:
+ * - **Muestra un botón con la ciudad seleccionada**.
+ * - **Al presionar el botón**, se despliega un `DropdownMenu` con la lista de ciudades disponibles.
+ * - **Al seleccionar una ciudad**, esta se actualiza en el `viewModel` y se cierra el menú.
+ *
+ * Diseño y estilos:
+ * - El botón tiene un fondo de color secundario (`secondary`).
+ * - El texto mantiene el contraste utilizando `onSecondary`.
+ * - El menú desplegable muestra las opciones en el color `secondary` del tema.
+ *
+ * @Composable
+ */
 @Composable
 fun CiudadSelector(viewModel: ContactosViewModel) {
     var expanded by remember { mutableStateOf(false) }
@@ -593,7 +709,24 @@ fun CiudadSelector(viewModel: ContactosViewModel) {
     }
 }
 
-// 🔹 Composable para el selector de servicio
+
+/**
+ * Composable que permite seleccionar un servicio a través de un `DropdownMenu`.
+ *
+ * @param viewModel Instancia de `ContactosViewModel` utilizada para obtener y actualizar el servicio seleccionado.
+ *
+ * Funcionalidad:
+ * - **Muestra un botón con el servicio actualmente seleccionado**.
+ * - **Al presionar el botón**, se despliega un `DropdownMenu` con la lista de servicios disponibles.
+ * - **Al seleccionar un servicio**, este se actualiza en el `viewModel` y se cierra el menú.
+ *
+ * Diseño y estilos:
+ * - El botón tiene un fondo de color secundario (`secondary`).
+ * - El texto mantiene el contraste utilizando `onSecondary`.
+ * - El menú desplegable muestra las opciones en el color `secondary` del tema.
+ *
+ * @Composable
+ */
 @Composable
 fun ServicioSelector(viewModel: ContactosViewModel) {
     var expanded by remember { mutableStateOf(false) }
@@ -619,14 +752,30 @@ fun ServicioSelector(viewModel: ContactosViewModel) {
     }
 }
 
-// 🔹 Composable para mostrar los detalles del contacto
+/**
+ * Composable que muestra los detalles de un contacto seleccionado.
+ *
+ * @param contacto Instancia de `Contacto` que contiene la información del contacto (nombre, teléfono y correo opcional).
+ *
+ * Funcionalidad:
+ * - **Muestra el nombre del contacto** en un estilo destacado.
+ * - **Muestra el número de teléfono** del contacto.
+ * - **Si el correo electrónico está disponible**, lo muestra debajo del teléfono.
+ *
+ * Diseño y estilos:
+ * - Fondo con color `surfaceVariant` para mantener un estilo neutro.
+ * - Tipografía acorde con `MaterialTheme` para garantizar legibilidad.
+ * - Texto alineado al centro para una presentación limpia.
+ *
+ * @Composable
+ */
 @Composable
 fun ContactoDetalles(contacto: Contacto) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant), // 🔹 Fondo neutro
+            .background(MaterialTheme.colorScheme.surfaceVariant), // Fondo neutro
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -639,41 +788,15 @@ fun ContactoDetalles(contacto: Contacto) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        contacto.movil?.let {
-            Text(
-                text = "Móvil: $it",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        contacto.correo?.let {
-            Text(
-                text = "Correo: $it",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+
+        Text(
+            text = "Correo: ${contacto.email}",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
     }
 }
-
-
-
-
-
-sealed class Screen(val route: String) {
-    object Temperatura : Screen("temperatura")
-    object Horas : Screen("horas")
-    object Contactos : Screen("contactos")
-}
-
-data class Contacto(
-    val nombre: String,
-    val telefono: String,
-    val movil: String?,
-    val correo: String?
-)
-
-
 
 @Preview(showBackground = true)
 @Composable

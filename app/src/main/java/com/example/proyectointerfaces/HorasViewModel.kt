@@ -6,7 +6,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class HorasViewModel : ViewModel() {
-    // 🔹 Lista de ciudades y su diferencia horaria con UTC
+    // Lista de ciudades y su diferencia horaria con UTC
     private val ciudades = mapOf(
         "Madrid" to 1,
         "París" to 1,
@@ -22,7 +22,7 @@ class HorasViewModel : ViewModel() {
         "Dubai" to 4
     )
 
-    // 🔹 Mapeo de cada ciudad con su respectivo mapa de país
+    // Mapeo de cada ciudad con su respectivo mapa de país
     val mapaDePaises = mapOf(
         "Madrid" to R.drawable.espana,
         "París" to R.drawable.francia,

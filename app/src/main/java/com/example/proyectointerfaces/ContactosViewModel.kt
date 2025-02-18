@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 
 class ContactosViewModel : ViewModel() {
 
-    // 🔹 Lista de ciudades con sus mapas asociados
     val ciudades = mapOf(
         "Madrid" to R.drawable.espana,
         "París" to R.drawable.francia,
@@ -21,123 +20,139 @@ class ContactosViewModel : ViewModel() {
         "Dubai" to R.drawable.emiratos
     )
 
-    // 🔹 Servicios corregidos
-    val servicios = listOf("Emergencias", "Policía", "Empresa de taxi", "Oficina de la empresa")
+    val servicios = listOf("Emergencias", "Policía", "Bomberos", "Oficina de Información y Turismo", "Ayuntamiento", "Servicio de Taxi", "Oficina")
 
-    // 🔹 Números de teléfono de cada servicio por ciudad
     val telefonos = mapOf(
-        // Madrid
-        "Madrid-Emergencias" to "+34 112",
-        "Madrid-Policía" to "+34 091",
-        "Madrid-Empresa de taxi" to "+34 666 123 456",
-        "Madrid-Oficina de la empresa" to "+34 900 123 456",
+        "Madrid-Emergencias" to "112",
+        "Madrid-Policía" to "091",
+        "Madrid-Bomberos" to "080",
+        "Madrid-Oficina de Información y Turismo" to "+34 914 201 314",
+        "Madrid-Ayuntamiento" to "+34 915 883 300",
+        "Madrid-Servicio de Taxi" to "+34 915 474 700",
+        "Madrid-Oficina" to "+34 913 423 600",
 
-        // París
-        "París-Emergencias" to "+33 112",
-        "París-Policía" to "+33 17",
-        "París-Empresa de taxi" to "+33 612 987 654",
-        "París-Oficina de la empresa" to "+33 800 987 654",
+        "París-Emergencias" to "112",
+        "París-Policía" to "17",
+        "París-Bomberos" to "18",
+        "París-Oficina de Información y Turismo" to "+33 1 49 52 42 63",
+        "París-Ayuntamiento" to "+33 1 42 76 60 00",
+        "París-Servicio de Taxi" to "+33 1 45 30 30 30",
+        "París-Oficina" to "+33 1 45 26 20 30",
 
-        // Londres
-        "Londres-Emergencias" to "+44 112",
-        "Londres-Policía" to "+44 999",
-        "Londres-Empresa de taxi" to "+44 7123 456 789",
-        "Londres-Oficina de la empresa" to "+44 800 111 222",
+        "Londres-Emergencias" to "999",
+        "Londres-Policía" to "101",
+        "Londres-Bomberos" to "999",
+        "Londres-Oficina de Información y Turismo" to "+44 20 7344 1000",
+        "Londres-Ayuntamiento" to "+44 20 7983 4000",
+        "Londres-Servicio de Taxi" to "+44 20 7272 0272",
+        "Londres-Oficina" to "+44 20 2536 0200",
 
-        // Porto Alegre
-        "Porto Alegre-Emergencias" to "+55 190",
-        "Porto Alegre-Policía" to "+55 193",
-        "Porto Alegre-Empresa de taxi" to "+55 519 9999 8888",
-        "Porto Alegre-Oficina de la empresa" to "+55 51 1234 5678",
+        "Porto Alegre-Emergencias" to "190",
+        "Porto Alegre-Policía" to "190",
+        "Porto Alegre-Bomberos" to "193",
+        "Porto Alegre-Oficina de Información y Turismo" to "+55 51 3289 4285",
+        "Porto Alegre-Ayuntamiento" to "+55 51 3289 1027",
+        "Porto Alegre-Servicio de Taxi" to "+55 51 3211 1188",
+        "Porto Alegre-Oficina" to "+55 51 5644 1000",
 
-        // Acapulco
-        "Acapulco-Emergencias" to "+52 911",
-        "Acapulco-Policía" to "+52 089",
-        "Acapulco-Empresa de taxi" to "+52 744 567 8901",
-        "Acapulco-Oficina de la empresa" to "+52 744 234 5678",
+        "Acapulco-Emergencias" to "911",
+        "Acapulco-Policía" to "911",
+        "Acapulco-Bomberos" to "911",
+        "Acapulco-Oficina de Información y Turismo" to "+52 744 482 2855",
+        "Acapulco-Ayuntamiento" to "+52 744 482 1400",
+        "Acapulco-Servicio de Taxi" to "+52 744 485 1073",
+        "Acapulco-Oficina" to "+52 744 779 1000",
 
-        // Vancouver
-        "Vancouver-Emergencias" to "+1 911",
-        "Vancouver-Policía" to "+1 604 123 4567",
-        "Vancouver-Empresa de taxi" to "+1 604 987 6543",
-        "Vancouver-Oficina de la empresa" to "+1 604 222 3333",
+        "Vancouver-Emergencias" to "911",
+        "Vancouver-Policía" to "911",
+        "Vancouver-Bomberos" to "911",
+        "Vancouver-Oficina de Información y Turismo" to "+1 604 482 2888",
+        "Vancouver-Ayuntamiento" to "+1 604 873 7000",
+        "Vancouver-Servicio de Taxi" to "+1 604 681 1111",
+        "Vancouver-Oficina" to "+34 913 423 600",
 
-        // Houston
-        "Houston-Emergencias" to "+1 911",
-        "Houston-Policía" to "+1 713 123 4567",
-        "Houston-Empresa de taxi" to "+1 713 987 6543",
-        "Houston-Oficina de la empresa" to "+1 713 222 3333",
+        "Houston-Emergencias" to "911",
+        "Houston-Policía" to "713 884 3131",
+        "Houston-Bomberos" to "911",
+        "Houston-Oficina de Información y Turismo" to "+1 713 437 5240",
+        "Houston-Ayuntamiento" to "+1 713 247 1000",
+        "Houston-Servicio de Taxi" to "+1 713 236 1111",
+        "Houston-Oficina" to "+1 713 555 1222",
 
-        // Casablanca
-        "Casablanca-Emergencias" to "+212 19",
-        "Casablanca-Policía" to "+212 177",
-        "Casablanca-Empresa de taxi" to "+212 661 234 567",
-        "Casablanca-Oficina de la empresa" to "+212 522 345 678",
+        "Casablanca-Emergencias" to "19 / 15",
+        "Casablanca-Policía" to "19",
+        "Casablanca-Bomberos" to "15",
+        "Casablanca-Oficina de Información y Turismo" to "+212 522 225 410",
+        "Casablanca-Ayuntamiento" to "+212 522 235 157",
+        "Casablanca-Servicio de Taxi" to "+212 522 252 014",
+        "Casablanca-Oficina" to "+212 522 449 000",
 
-        // Osaka
-        "Osaka-Emergencias" to "+81 119",
-        "Osaka-Policía" to "+81 110",
-        "Osaka-Empresa de taxi" to "+81 6 1234 5678",
-        "Osaka-Oficina de la empresa" to "+81 6 2345 6789",
+        "Osaka-Emergencias" to "110 / 119",
+        "Osaka-Policía" to "110",
+        "Osaka-Bomberos" to "119",
+        "Osaka-Oficina de Información y Turismo" to "+81 6 6345 3301",
+        "Osaka-Ayuntamiento" to "+81 6 6208 7171",
+        "Osaka-Servicio de Taxi" to "+81 6 6345 1234",
+        "Osaka-Oficina" to "+81 6 4882 6600",
 
-        // Melbourne
-        "Melbourne-Emergencias" to "+61 000",
-        "Melbourne-Policía" to "+61 131 444",
-        "Melbourne-Empresa de taxi" to "+61 3 9876 5432",
-        "Melbourne-Oficina de la empresa" to "+61 3 2345 6789",
+        "Melbourne-Emergencias" to "000",
+        "Melbourne-Policía" to "000",
+        "Melbourne-Bomberos" to "000",
+        "Melbourne-Oficina de Información y Turismo" to "+61 3 9658 9658",
+        "Melbourne-Ayuntamiento" to "+61 3 9658 9658",
+        "Melbourne-Servicio de Taxi" to "+61 3 8413 7300",
+        "Melbourne-Oficina" to "+61 3 9974 9600",
 
-        // Ankara
-        "Ankara-Emergencias" to "+90 112",
-        "Ankara-Policía" to "+90 155",
-        "Ankara-Empresa de taxi" to "+90 312 345 6789",
-        "Ankara-Oficina de la empresa" to "+90 312 456 7890",
+        "Ankara-Emergencias" to "112",
+        "Ankara-Policía" to "155",
+        "Ankara-Bomberos" to "110",
+        "Ankara-Oficina de Información y Turismo" to "+90 312 310 13 55",
+        "Ankara-Ayuntamiento" to "+90 312 507 10 00",
+        "Ankara-Servicio de Taxi" to "+90 312 444 75 47",
+        "Ankara-Oficina" to "+90 312 822 70 00",
 
-        // Dubai
-        "Dubai-Emergencias" to "+971 999",
-        "Dubai-Policía" to "+971 901",
-        "Dubai-Empresa de taxi" to "+971 4 567 8901",
-        "Dubai-Oficina de la empresa" to "+971 4 678 9012"
+        "Dubai-Emergencias" to "999",
+        "Dubai-Policía" to "999",
+        "Dubai-Bomberos" to "997",
+        "Dubai-Oficina de Información y Turismo" to "+971 4 201 5555",
+        "Dubai-Ayuntamiento" to "+971 4 406 5555",
+        "Dubai-Servicio de Taxi" to "+971 4 208 0808",
+        "Dubai-Oficina" to "+971 4 495 7000"
     )
 
-    // 🔹 Contactos de la empresa (solo para "Oficina de la empresa")
     val contactos = mapOf(
-        "Madrid-Oficina de la empresa" to Contacto("Carlos López", "+34 900 123 456", "+34 666 555 444", "carlos.lopez@madrid.com"),
-        "París-Oficina de la empresa" to Contacto("Marie Dupont", "+33 800 987 654", "+33 612 345 678", "marie.dupont@paris.com"),
-        "Londres-Oficina de la empresa" to Contacto("John Smith", "+44 800 111 222", "+44 7123 456 789", "john.smith@london.com"),
-        "Porto Alegre-Oficina de la empresa" to Contacto("Fernando Oliveira", "+55 51 1234 5678", "+55 519 8765 4321", "fernando.oliveira@portoalegre.com"),
-        "Acapulco-Oficina de la empresa" to Contacto("Sofía Ramírez", "+52 744 234 5678", "+52 744 876 5432", "sofia.ramirez@acapulco.com"),
-        "Vancouver-Oficina de la empresa" to Contacto("Michael Johnson", "+1 604 222 3333", "+1 604 987 6543", "michael.johnson@vancouver.com"),
-        "Houston-Oficina de la empresa" to Contacto("Robert Martinez", "+1 713 222 3333", "+1 713 999 8888", "robert.martinez@houston.com"),
-        "Casablanca-Oficina de la empresa" to Contacto("Amina El-Fassi", "+212 522 345 678", "+212 661 987 654", "amina.elfassi@casablanca.com"),
-        "Osaka-Oficina de la empresa" to Contacto("Takeshi Nakamura", "+81 6 2345 6789", "+81 90 1234 5678", "takeshi.nakamura@osaka.com"),
-        "Melbourne-Oficina de la empresa" to Contacto("Emily White", "+61 3 2345 6789", "+61 400 123 456", "emily.white@melbourne.com"),
-        "Ankara-Oficina de la empresa" to Contacto("Mehmet Yilmaz", "+90 312 456 7890", "+90 532 987 6543", "mehmet.yilmaz@ankara.com"),
-        "Dubai-Oficina de la empresa" to Contacto("Ahmed Al-Farsi", "+971 4 678 9012", "+971 555 666 777", "ahmed.alfarsi@dubai.com")
+        "Madrid-Oficina" to Contacto("Antonio Avellaneda", "+34 913 423 634", "aavellaneda@splatnot.com"),
+        "París-Oficina" to Contacto("François Merlin", "+33 1 45 26 22 46", "fmerlin@splatnot.com"),
+        "Londres-Oficina" to Contacto("Sarah Louise Taylor", "+44 20 2536 0232", "staylor@splatnot.com"),
+        "Porto Alegre-Oficina" to Contacto("Maria Fernanda Oliveira Costa", "+55 51 5644 1688", "mfoliveira@splatnot.com"),
+        "Acapulco-Oficina" to Contacto("Antonio Avellaneda", "+52 744 779 1948", "aavellaneda@splatnot.com"),
+        "Vancouver-Oficina" to Contacto("David Miller", "+34 913 423 634", "dmiller@splatnot.com"),
+        "Houston-Oficina" to Contacto("Robinson Hill", "+1 713 555 1291", "rhill@splatnot.com"),
+        "Casablanca-Oficina" to Contacto("Ahmed Ben Youssef El Fassi", "+212 522 449 644", "abenyoussef@splatnot.com"),
+        "Osaka-Oficina" to Contacto("Takahashi Hiroshi", "+81 6 4882 6632", "thiroshi@splatnot.com"),
+        "Melbourne-Oficina" to Contacto("Emily Johnson", "+61 3 9974 9677", "ejohnson@splatnot.com"),
+        "Ankara-Oficina" to Contacto("Elif Demir", "+90 312 822 70 94", "edemir@splatnot.com"),
+        "Dubai-Oficina" to Contacto("Khalid Al Maktoum", "+971 4 495 7556", "kalmaktoum@splatnot.com")
     )
 
-
-    // 🔹 Estados de la selección
     var ciudadSeleccionada = mutableStateOf("Madrid")
     var servicioSeleccionado = mutableStateOf("Emergencias")
 
-    // 🔹 Obtener el mapa de la ciudad seleccionada
     fun obtenerMapa(): Int {
         return ciudades[ciudadSeleccionada.value] ?: error("Ciudad no encontrada en el mapa")
     }
 
-    // 🔹 Obtener el teléfono del servicio seleccionado
     fun obtenerTelefono(): String {
         val clave = "${ciudadSeleccionada.value}-${servicioSeleccionado.value}"
         return telefonos[clave] ?: "No disponible"
     }
 
-    // 🔹 Obtener el contacto si existe (solo para "Oficina de la empresa")
     fun obtenerContacto(): Contacto? {
-        val clave = "${ciudadSeleccionada.value}-${servicioSeleccionado.value}"
+        val clave = "${ciudadSeleccionada.value}-Oficina"
         return contactos[clave]
     }
 
-    // 🔹 Métodos para actualizar la selección
+
     fun seleccionarCiudad(nuevaCiudad: String) {
         ciudadSeleccionada.value = nuevaCiudad
     }
@@ -145,7 +160,8 @@ class ContactosViewModel : ViewModel() {
     fun seleccionarServicio(nuevoServicio: String) {
         servicioSeleccionado.value = nuevoServicio
     }
+
+
 }
 
-
-
+data class Contacto(val nombre: String, val telefono: String, val email: String)
