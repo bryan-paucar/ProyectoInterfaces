@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Settings
@@ -486,7 +485,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .background(MaterialTheme.colorScheme.surfaceContainer), // Fondo con color neutro
+            .background(MaterialTheme.colorScheme.surfaceContainer),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Título
@@ -497,30 +496,28 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
             modifier = Modifier.padding(vertical = 16.dp)
         )
 
-        // Selector de ciudades en horizontal (LazyRow)
+        // Selector de ciudades en horizontal con Cards
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(viewModel.obtenerHorasEnCiudades().keys.toList()) { ciudad ->
                 Card(
-                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.padding(4.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = if (viewModel.ciudadSeleccionada.value == ciudad)
                             MaterialTheme.colorScheme.secondary
                         else
                             MaterialTheme.colorScheme.secondaryContainer
                     ),
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Button(
                         onClick = { viewModel.seleccionarCiudad(ciudad) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent
-                        ),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
                         Text(
                             ciudad,
@@ -534,30 +531,23 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección de la ciudad seleccionada con Card
+        // Sección de la ciudad seleccionada dentro de una Card
         Card(
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(horizontal = 16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Row(
                 modifier = Modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painter = painterResource(
-                            id = viewModel.mapaDePaises[viewModel.ciudadSeleccionada.value]!!
-                        ),
+                        painter = painterResource(id = viewModel.mapaDePaises[viewModel.ciudadSeleccionada.value]!!),
                         contentDescription = "Mapa de ${viewModel.ciudadSeleccionada.value}",
-                        modifier = Modifier
-                            .size(150.dp)
-                            .padding(8.dp)
+                        modifier = Modifier.size(150.dp)
                     )
                     Text(
                         text = viewModel.ciudadSeleccionada.value,
@@ -566,19 +556,17 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                     )
                 }
 
-                Column(
-                    modifier = Modifier.padding(start = 5.dp)
-                ) {
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Column {
                     var expanded by remember { mutableStateOf(false) }
                     Button(
                         onClick = { expanded = true },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                     ) {
                         Text(
                             viewModel.horaSeleccionada.value,
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
@@ -602,30 +590,27 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de horas en otras ciudades con Card
+        // Lista de horas en otras ciudades dentro de Cards
         LazyColumn {
             items(viewModel.obtenerHorasEnCiudades().entries.toList()) { (ciudad, hora) ->
                 if (ciudad != viewModel.ciudadSeleccionada.value) {
                     Card(
-                        shape = RoundedCornerShape(12.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier.padding(16.dp)
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Image(
-                                    painter = painterResource(
-                                        id = viewModel.mapaDePaises[ciudad]!!
-                                    ),
+                                    painter = painterResource(id = viewModel.mapaDePaises[ciudad]!!),
                                     contentDescription = "Mapa de $ciudad",
                                     modifier = Modifier.size(80.dp)
                                 )
