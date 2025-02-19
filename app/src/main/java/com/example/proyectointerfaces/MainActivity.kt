@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -151,9 +152,9 @@ fun AppTopBar() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = R.drawable.logo2),
                     contentDescription = "Logo",
-                    modifier = Modifier.size(200.dp) // Tamaño ajustado para no desbalancear la barra
+                    modifier = Modifier.size(170.dp) // Tamaño ajustado para no desbalancear la barra
                 )
             }
         },
@@ -322,6 +323,14 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             .background(MaterialTheme.colorScheme.secondaryContainer), // Fondo con color secundario
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Título
+        Text(
+            text = "Conversión de temperatura",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+
         val temperaturaActual = if (viewModel.mostrarEnCelsius.value) {
             viewModel.temperatura.value
         } else {
@@ -337,12 +346,35 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             else -> R.drawable.calor
         }
 
-        Image(
-            painter = painterResource(id = imagenRes),
-            contentDescription = "Imagen temperatura",
-            modifier = Modifier
-                .size(200.dp) // Ajuste de tamaño para mejorar espacio
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Temperatura en °C a la izquierda
+            Text(
+                text = "${viewModel.temperatura.value.toInt()}°C",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center
+            )
+
+            // Imagen de temperatura
+            Image(
+                painter = painterResource(id = imagenRes),
+                contentDescription = "Imagen temperatura",
+                modifier = Modifier.size(180.dp) // Ajuste de tamaño para mejorar espacio
+            )
+
+            // Temperatura en °F a la derecha
+            Text(
+                text = "${((viewModel.temperatura.value * 9 / 5) + 32).toInt()}°F",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center
+            )
+        }
 
         // Texto con la temperatura actual
         Text(
@@ -376,6 +408,9 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
                 viewModel.temperatura.value = nuevaTemperatura
             },
             valueRange = -30f..55f,
+            modifier = Modifier
+                .width(280.dp)  // Ajusta el ancho del Slider (más pequeño)
+                .height(54.dp), // Reduce la altura del Slider
             colors = androidx.compose.material3.SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.tertiary,
                 activeTrackColor = MaterialTheme.colorScheme.tertiaryContainer
@@ -418,6 +453,7 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
     }
 }
 
+
 /**
  * Composable que representa la pantalla de visualización de horas en diferentes ciudades.
  *
@@ -449,6 +485,13 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
             .background(MaterialTheme.colorScheme.surfaceContainer), // Fondo con color neutro
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Título
+        Text(
+            text = "Horas en distintas locaciones",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
         // Selector de ciudades en horizontal (LazyRow)
         LazyRow(
             modifier = Modifier
@@ -614,39 +657,51 @@ fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = view
             .background(MaterialTheme.colorScheme.surfaceContainer), // Fondo neutro
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Título
+        Text(
+            text = "Teléfonos de ayuda y contactos",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(vertical = 24.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Selector de ciudad y servicio (DropDownMenus)
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             CiudadSelector(viewModel)
             ServicioSelector(viewModel)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Mapa con teléfono sobreimpreso
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.tertiaryContainer), // Fondo del mapa resaltado
+                .padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = viewModel.obtenerMapa()),
                 contentDescription = "Mapa de ${viewModel.ciudadSeleccionada.value}",
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(320.dp)
                     .padding(8.dp)
             )
             Text(
                 text = viewModel.obtenerTelefono(),
-                style = MaterialTheme.typography.headlineSmall, // Tamaño adecuado para el teléfono
-                color = MaterialTheme.colorScheme.onTertiaryContainer
+                style = MaterialTheme.typography.headlineLarge, // Tamaño adecuado para el teléfono
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Nombre de la ciudad debajo del mapa
         Text(
@@ -655,17 +710,19 @@ fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = view
             color = MaterialTheme.colorScheme.onSurface
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Mostrar información del contacto solo si el servicio es "Oficina"
         if (viewModel.servicioSeleccionado.value == "Oficina") {
             val contacto = viewModel.obtenerContacto()
             contacto?.let {
+                Spacer(modifier = Modifier.height(16.dp))
                 ContactoDetalles(it)
             }
         }
     }
 }
+
 
 /**
  * Composable que permite seleccionar una ciudad a través de un `DropdownMenu`.
