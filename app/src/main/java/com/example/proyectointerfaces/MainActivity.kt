@@ -175,7 +175,7 @@ fun AppTopBar() {
             }
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            containerColor = MaterialTheme.colorScheme.secondary,
             titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     )
@@ -235,7 +235,7 @@ fun AppBottomBar(navController: NavController) {
 fun AppBottomBar(navController: NavController) {
     NavigationBar(
         modifier = Modifier.height(56.dp),
-        containerColor = MaterialTheme.colorScheme.primaryContainer // Fondo corporativo
+        containerColor = MaterialTheme.colorScheme.secondary // Fondo corporativo
     ) {
         NavigationBarItem(
             selected = navController.currentDestination?.route == Screen.Temperatura.route,
