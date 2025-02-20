@@ -7,11 +7,23 @@ import androidx.lifecycle.ViewModel
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+/**
+ * Representa una ciudad con su nombre, zona horaria UTC y recurso de imagen asociado.
+ *
+ * @param name Nombre de la ciudad.
+ * @param utcOffset Diferencia horaria en horas con respecto a UTC.
+ * @param imageRes Identificador del recurso de imagen asociado a la ciudad.
+ */
 data class CityTime(val name: String, val utcOffset: Int, val imageRes: Int)
 
+/**
+ * ViewModel que gestiona la lógica de la pantalla de horas en diferentes ciudades del mundo.
+ *
+ * Permite seleccionar una ciudad y visualizar su hora local, basada en la diferencia de huso horario.
+ */
 class HorasViewModel : ViewModel() {
 
-    // Lista de ciudades con sus respectivos husos horarios e imagenes
+    /** Lista de ciudades disponibles con su huso horario y su imagen representativa. */
     private val _cities = listOf(
         CityTime("Madrid", 1, R.drawable.espana),
         CityTime("París", 1, R.drawable.francia),
@@ -24,29 +36,44 @@ class HorasViewModel : ViewModel() {
         CityTime("Osaka", 9, R.drawable.japon),
         CityTime("Melbourne", 10, R.drawable.australia),
         CityTime("Ankara", 3, R.drawable.turquia),
-        CityTime("Dubai",4,R.drawable.emiratos)
+        CityTime("Dubai", 4, R.drawable.emiratos)
     )
+
+    /** Lista pública de ciudades disponibles. */
     val cities: List<CityTime> = _cities
 
-    // Estado de la ciudad seleccionada; se inicializa con la primera ciudad de la lista
+    /** Ciudad actualmente seleccionada. Se inicializa con la primera ciudad de la lista. */
     var selectedCity by mutableStateOf(_cities.first())
         private set
 
-    // Hora seleccionada (se inicializa con la hora actual)
+    /** Hora seleccionada por el usuario. Se inicializa con la hora actual. */
     var selectedTime by mutableStateOf(LocalTime.now())
         private set
 
-    // Actualiza la ciudad seleccionada
+    /**
+     * Actualiza la ciudad seleccionada.
+     *
+     * @param city Nueva ciudad seleccionada por el usuario.
+     */
     fun updateSelectedCity(city: CityTime) {
         selectedCity = city
     }
 
-    // Actualiza la hora seleccionada
+    /**
+     * Actualiza la hora seleccionada manualmente por el usuario.
+     *
+     * @param newTime Nueva hora establecida.
+     */
     fun updateTime(newTime: LocalTime) {
         selectedTime = newTime
     }
 
-    // Calcula y devuelve la hora local para la ciudad pasada como parámetro
+    /**
+     * Calcula la hora local de una ciudad con base en la diferencia horaria respecto a la ciudad seleccionada.
+     *
+     * @param city Ciudad cuya hora local se quiere calcular.
+     * @return Hora local en formato "HH:mm".
+     */
     fun getLocalTime(city: CityTime): String {
         val difference = city.utcOffset - selectedCity.utcOffset
         val localTime = selectedTime.plusHours(difference.toLong())

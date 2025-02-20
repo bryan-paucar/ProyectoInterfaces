@@ -3,8 +3,15 @@ package com.example.proyectointerfaces
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 
+/**
+ * ViewModel que gestiona la información de contactos y servicios de emergencia en distintas ciudades.
+ *
+ * Proporciona datos sobre ciudades, servicios disponibles, teléfonos de emergencia y contactos de oficina.
+ * Permite seleccionar una ciudad y un servicio para obtener la información correspondiente.
+ */
 class ContactosViewModel : ViewModel() {
 
+    /** Mapa de ciudades con su respectiva imagen representativa. */
     val ciudades = mapOf(
         "Madrid" to R.drawable.espana,
         "París" to R.drawable.francia,
@@ -20,8 +27,10 @@ class ContactosViewModel : ViewModel() {
         "Dubai" to R.drawable.emiratos
     )
 
+    /** Lista de servicios disponibles en cada ciudad. */
     val servicios = listOf("Emergencias", "Policía", "Bomberos", "Oficina de Información y Turismo", "Ayuntamiento", "Servicio de Taxi", "Oficina")
 
+    /** Mapa de números de teléfono asociados a cada ciudad y servicio. */
     val telefonos = mapOf(
         "Madrid-Emergencias" to "112",
         "Madrid-Policía" to "091",
@@ -120,6 +129,7 @@ class ContactosViewModel : ViewModel() {
         "Dubai-Oficina" to "+971 4 495 7000"
     )
 
+    /** Mapa de contactos de oficina en distintas ciudades. */
     val contactos = mapOf(
         "Madrid-Oficina" to Contacto("Antonio Avellaneda", "+34 913 423 634", "aavellaneda@splatnot.com"),
         "París-Oficina" to Contacto("François Merlin", "+33 1 45 26 22 46", "fmerlin@splatnot.com"),
@@ -138,25 +148,50 @@ class ContactosViewModel : ViewModel() {
     var ciudadSeleccionada = mutableStateOf("Madrid")
     var servicioSeleccionado = mutableStateOf("Emergencias")
 
+    /**
+     * Obtiene el recurso de imagen asociado a la ciudad seleccionada.
+     *
+     * @return Identificador del recurso de imagen de la ciudad seleccionada.
+     * @throws IllegalArgumentException Si la ciudad no está en el mapa.
+     */
     fun obtenerMapa(): Int {
         return ciudades[ciudadSeleccionada.value] ?: error("Ciudad no encontrada en el mapa")
     }
 
+    /**
+     * Obtiene el número de teléfono del servicio seleccionado en la ciudad actual.
+     *
+     * @return Número de teléfono del servicio seleccionado o "No disponible" si no se encuentra.
+     */
     fun obtenerTelefono(): String {
         val clave = "${ciudadSeleccionada.value}-${servicioSeleccionado.value}"
         return telefonos[clave] ?: "No disponible"
     }
 
+    /**
+     * Obtiene el contacto de oficina en la ciudad seleccionada.
+     *
+     * @return Instancia de [Contacto] si existe, o `null` si no hay contacto disponible.
+     */
     fun obtenerContacto(): Contacto? {
         val clave = "${ciudadSeleccionada.value}-Oficina"
         return contactos[clave]
     }
 
-
+    /**
+     * Cambia la ciudad seleccionada.
+     *
+     * @param nuevaCiudad Nueva ciudad seleccionada por el usuario.
+     */
     fun seleccionarCiudad(nuevaCiudad: String) {
         ciudadSeleccionada.value = nuevaCiudad
     }
 
+    /**
+     * Cambia el servicio seleccionado dentro de la ciudad actual.
+     *
+     * @param nuevoServicio Nuevo servicio seleccionado por el usuario.
+     */
     fun seleccionarServicio(nuevoServicio: String) {
         servicioSeleccionado.value = nuevoServicio
     }
@@ -164,4 +199,11 @@ class ContactosViewModel : ViewModel() {
 
 }
 
+/**
+ * Representa la información de contacto de una oficina en una ciudad.
+ *
+ * @param nombre Nombre de la persona de contacto.
+ * @param telefono Número de teléfono del contacto.
+ * @param email Dirección de correo electrónico del contacto.
+ */
 data class Contacto(val nombre: String, val telefono: String, val email: String)

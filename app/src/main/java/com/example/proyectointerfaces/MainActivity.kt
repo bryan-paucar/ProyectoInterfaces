@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme { AppScaffold() }
+            AppTheme {AppScaffold()}
         }
     }
 }
@@ -211,7 +211,7 @@ fun AppTopBar() {
 @Composable
 fun AppBottomBar(navController: NavController) {
     NavigationBar(
-        modifier = Modifier.height(56.dp),
+        //modifier = Modifier.height(56.dp),
         containerColor = MaterialTheme.colorScheme.secondary // Fondo corporativo
     ) {
         NavigationBarItem(
@@ -274,7 +274,6 @@ fun AppBottomBar(navController: NavController) {
     }
 }
 
-
 /**
  * Composable que representa la pantalla de conversión de temperatura.
  *
@@ -302,7 +301,7 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
     ) {
         // Título
         Text(
-            text = "Conversión de temperatura",
+            text = "Conversión de temperaturas",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.padding(vertical = 16.dp)
@@ -325,7 +324,7 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
 
         // Box con la imagen de fondo y las temperaturas sobrepuesta
         Box(
-            modifier = Modifier.size(210.dp)
+            modifier = Modifier.size(220.dp)
         ) {
             Image(
                 painter = painterResource(id = imagenRes),
@@ -333,7 +332,7 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-            // Overlay con las temperaturas
+            // Temperaturas sobrepuestas
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -343,12 +342,12 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             ) {
                 Text(
                     text = "${viewModel.temperatura.value.toInt()}°C",
-                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 35.sp),
+                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 36.sp),
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = "${((viewModel.temperatura.value * 9 / 5) + 32).toInt()}°F",
-                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 35.sp),
+                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 36.sp),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -364,8 +363,8 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             },
             valueRange = -30f..55f,
             modifier = Modifier
-                .width(280.dp)  // Ajusta el ancho del Slider (más pequeño)
-                .height(54.dp), // Reduce la altura del Slider
+                .width(280.dp)  // Ajusta el ancho del Slider
+                .height(30.dp), // Reduce la altura del Slider
             colors = androidx.compose.material3.SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.tertiary,
                 activeTrackColor = MaterialTheme.colorScheme.tertiaryContainer
@@ -375,15 +374,20 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
         // Texto con la temperatura actual
         Text(
             text = "${temperaturaActual.toInt()}°$unidad",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onSecondaryContainer // Texto con color de alto contraste sobre fondo secundario
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Switch para cambiar entre °C y °F
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("°C", color = MaterialTheme.colorScheme.onSecondaryContainer)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("°C", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 20.sp)
+
+            Spacer(modifier = Modifier.width(8.dp)) // Espacio entre °C y el switch
+
             Switch(
                 checked = !viewModel.mostrarEnCelsius.value,
                 onCheckedChange = { viewModel.mostrarEnCelsius.value = !viewModel.mostrarEnCelsius.value },
@@ -392,8 +396,12 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
                     checkedTrackColor = MaterialTheme.colorScheme.tertiaryContainer
                 )
             )
-            Text("°F", color = MaterialTheme.colorScheme.onSecondaryContainer)
+
+            Spacer(modifier = Modifier.width(8.dp)) // Espacio entre el switch y °F
+
+            Text("°F", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 20.sp)
         }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -402,7 +410,9 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             onClick = { viewModel.agregarTemperatura() },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
         ) {
-            Text("Guardar temperatura", color = MaterialTheme.colorScheme.onTertiaryContainer)
+            Text("Guardar temperatura",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiaryContainer)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -433,7 +443,16 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
     }
 }
 
-
+/**
+ * Pantalla que muestra la hora en diferentes ciudades del mundo.
+ *
+ * Esta pantalla permite al usuario seleccionar una ciudad y ver su hora local en grande,
+ * junto con un mapa representativo. También muestra una lista de otras ciudades con su respectiva
+ * hora local. Se puede cambiar la hora de la ciudad seleccionada mediante un `TimePickerDialog`.
+ *
+ * @param padding Valores de padding aplicados a la pantalla, generalmente proporcionados por `Scaffold`.
+ * @param viewModel Instancia de [HorasViewModel] utilizada para gestionar el estado de la pantalla.
+ */
 @Composable
 fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel()) {
     val context = LocalContext.current
@@ -481,7 +500,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Layout principal: Mapa y nombre en una columna, y la hora en grande a la derecha
+        // Mapa y nombre en una columna, y la hora en grande a la derecha
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -507,8 +526,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                     fontWeight = FontWeight.Bold
                 )
             }
-            // La hora en grande, al lado del mapa
-            // Botón para lanzar el TimePicker y actualizar la hora seleccionada
+            // La hora en grande, al lado del mapa y botón para lanzar el TimePicker y actualizar la hora seleccionada
             Button(
                 onClick = {
                     TimePickerDialog(
@@ -537,7 +555,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
         Spacer(modifier = Modifier.height(16.dp))
 
 
-        // Lista de las demás ciudades con su hora local, cada una en una Card
+        // Lista de las demás ciudades con su hora local
         LazyColumn(
             modifier = Modifier.fillMaxHeight(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -575,7 +593,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
-                        // Columna para la hora, con un estilo mucho más grande
+                        // Columna para la hora con tamaño más grande
                         Column(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -595,9 +613,6 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
     }
 }
 
-
-
-
 /**
  * Composable que representa la pantalla de contacto con información de oficinas y servicios en distintas ciudades.
  *
@@ -611,8 +626,7 @@ fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel())
  * - **Mostrar información de contacto** (nombre, teléfono y email) cuando el servicio seleccionado es "Oficina".
  *
  * Diseño y estilos:
- * - Usa colores de `MaterialTheme` para mantener coherencia visual.
- * - Resalta el mapa con un fondo terciario.
+ * - Usa colores de `MaterialTheme`
  * - Asegura legibilidad del teléfono sobre el mapa con un contraste adecuado.
  *
  * @Composable
@@ -623,7 +637,7 @@ fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = view
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .background(MaterialTheme.colorScheme.surfaceContainer), // Fondo neutro
+            .background(MaterialTheme.colorScheme.surfaceContainer),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Título
@@ -665,7 +679,7 @@ fun ContactosScreen(padding: PaddingValues, viewModel: ContactosViewModel = view
             )
             Text(
                 text = viewModel.obtenerTelefono(),
-                style = MaterialTheme.typography.headlineLarge, // Tamaño adecuado para el teléfono
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 40.sp),
                 color = MaterialTheme.colorScheme.primary
             )
         }
@@ -801,7 +815,7 @@ fun ContactoDetalles(contacto: Contacto) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant), // Fondo neutro
+            .background(MaterialTheme.colorScheme.surfaceVariant),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
