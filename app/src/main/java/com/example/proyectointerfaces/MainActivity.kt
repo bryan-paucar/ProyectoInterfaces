@@ -1,5 +1,6 @@
 package com.example.proyectointerfaces
 
+import android.app.TimePickerDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,23 +52,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.proyectointerfaces.ui.theme.AppTheme
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme {}
+            AppTheme { AppScaffold() }
         }
     }
 }
@@ -344,8 +351,8 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
 
         // Imagen de fondo
         val imagenRes = when (viewModel.temperatura.value) {
-            in -30f..11f -> R.drawable.frio
-            in 11f..25f -> R.drawable.templado
+            in -30f..12f -> R.drawable.frio
+            in 12f..26f -> R.drawable.templado
             else -> R.drawable.calor
         }
 
@@ -366,7 +373,7 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             Image(
                 painter = painterResource(id = imagenRes),
                 contentDescription = "Imagen temperatura",
-                modifier = Modifier.size(180.dp) // Ajuste de tamaño para mejorar espacio
+                modifier = Modifier.size(160.dp) // Ajuste de tamaño para mejorar espacio
             )
 
             // Temperatura en °F a la derecha
@@ -378,6 +385,24 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
                 textAlign = TextAlign.Center
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Slider para seleccionar la temperatura
+        Slider(
+            value = viewModel.temperatura.value,
+            onValueChange = { nuevaTemperatura ->
+                viewModel.temperatura.value = nuevaTemperatura
+            },
+            valueRange = -30f..55f,
+            modifier = Modifier
+                .width(280.dp)  // Ajusta el ancho del Slider (más pequeño)
+                .height(54.dp), // Reduce la altura del Slider
+            colors = androidx.compose.material3.SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.tertiary,
+                activeTrackColor = MaterialTheme.colorScheme.tertiaryContainer
+            )
+        )
 
         // Texto con la temperatura actual
         Text(
@@ -403,22 +428,6 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Slider para seleccionar la temperatura
-        Slider(
-            value = viewModel.temperatura.value,
-            onValueChange = { nuevaTemperatura ->
-                viewModel.temperatura.value = nuevaTemperatura
-            },
-            valueRange = -30f..55f,
-            modifier = Modifier
-                .width(280.dp)  // Ajusta el ancho del Slider (más pequeño)
-                .height(54.dp), // Reduce la altura del Slider
-            colors = androidx.compose.material3.SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.tertiary,
-                activeTrackColor = MaterialTheme.colorScheme.tertiaryContainer
-            )
-        )
 
         // Botón para agregar la temperatura al historial
         Button(
@@ -457,185 +466,168 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
 }
 
 
-/**
- * Composable que representa la pantalla de visualización de horas en diferentes ciudades.
- *
- * @param padding Espaciado superior proporcionado por `Scaffold` para evitar superposiciones.
- * @param viewModel Instancia de `HorasViewModel` utilizada para gestionar el estado de la pantalla.
- *
- * La pantalla permite:
- * - **Seleccionar una ciudad** desde un `LazyRow` con botones de selección.
- * - **Mostrar la hora de la ciudad seleccionada** con un mapa del país correspondiente.
- * - **Modificar la hora de la ciudad seleccionada** a través de un `DropdownMenu`.
- * - **Listar las horas de otras ciudades** en una `LazyColumn`, mostrando:
- *   - Mapa del país correspondiente.
- *   - Nombre de la ciudad.
- *   - Hora local.
- *
- * Diseño y estilos:
- * - Utiliza colores de `MaterialTheme` para mantener coherencia visual.
- * - Diferencia secciones con fondos secundarios y terciarios.
- * - Usa iconografía y mapas representativos para cada ciudad.
- *
- * @Composable
- */
 @Composable
 fun HorasScreen(padding: PaddingValues, viewModel: HorasViewModel = viewModel()) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .background(MaterialTheme.colorScheme.surfaceContainer),
+            .background(MaterialTheme.colorScheme.secondaryContainer),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título
+        // Título de la pantalla
         Text(
-            text = "Horas en distintas locaciones",
+            text = "Horas en el mundo",
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.padding(vertical = 16.dp)
         )
 
-        // Selector de ciudades en horizontal con Cards
+        // Selector horizontal de ciudades
         LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondaryContainer),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(viewModel.obtenerHorasEnCiudades().keys.toList()) { ciudad ->
-                Card(
-                    modifier = Modifier.padding(4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (viewModel.ciudadSeleccionada.value == ciudad)
-                            MaterialTheme.colorScheme.secondary
-                        else
-                            MaterialTheme.colorScheme.secondaryContainer
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            items(viewModel.cities) { city ->
+                Button(
+                    onClick = { viewModel.updateSelectedCity(city) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (city == viewModel.selectedCity)
+                            MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.secondary
+                    )
                 ) {
-                    Button(
-                        onClick = { viewModel.seleccionarCiudad(ciudad) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    ) {
-                        Text(
-                            ciudad,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                    Text(
+                        text = city.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (city == viewModel.selectedCity)
+                            MaterialTheme.colorScheme.onPrimary
+                        else MaterialTheme.colorScheme.onSecondary
+                    )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección de la ciudad seleccionada dentro de una Card
-        Card(
+        // Layout principal: Mapa y nombre en una columna, y la hora en grande a la derecha
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+            // Columna izquierda: mapa y debajo el nombre de la ciudad seleccionada
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(
-                        painter = painterResource(id = viewModel.mapaDePaises[viewModel.ciudadSeleccionada.value]!!),
-                        contentDescription = "Mapa de ${viewModel.ciudadSeleccionada.value}",
-                        modifier = Modifier.size(150.dp)
-                    )
-                    Text(
-                        text = viewModel.ciudadSeleccionada.value,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Column {
-                    var expanded by remember { mutableStateOf(false) }
-                    Button(
-                        onClick = { expanded = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-                    ) {
-                        Text(
-                            viewModel.horaSeleccionada.value,
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        viewModel.listaHoras.forEach { hora ->
-                            DropdownMenuItem(
-                                text = { Text(hora, color = MaterialTheme.colorScheme.secondary) },
-                                onClick = {
-                                    viewModel.actualizarHora(hora)
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
+                Image(
+                    painter = painterResource(id = viewModel.selectedCity.imageRes),
+                    contentDescription = "Mapa de ${viewModel.selectedCity.name}",
+                    modifier = Modifier.size(180.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = viewModel.selectedCity.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
             }
+            // La hora en grande, al lado del mapa
+            // Botón para lanzar el TimePicker y actualizar la hora seleccionada
+            Button(
+                onClick = {
+                    TimePickerDialog(
+                        context,
+                        { _, hour, minute ->
+                            viewModel.updateTime(LocalTime.of(hour, minute))
+                        },
+                        viewModel.selectedTime.hour,
+                        viewModel.selectedTime.minute,
+                        true
+                    ).show()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+            ) {
+                Text(
+                    text = viewModel.selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 34.sp),
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de horas en otras ciudades dentro de Cards
-        LazyColumn {
-            items(viewModel.obtenerHorasEnCiudades().entries.toList()) { (ciudad, hora) ->
-                if (ciudad != viewModel.ciudadSeleccionada.value) {
-                    Card(
+
+        // Lista de las demás ciudades con su hora local, cada una en una Card
+        LazyColumn(
+            modifier = Modifier.fillMaxHeight(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(viewModel.cities.filter { it != viewModel.selectedCity }) { city ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(16.dp)
+                        // Columna para el mapa y el nombre de la ciudad
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = viewModel.mapaDePaises[ciudad]!!),
-                                    contentDescription = "Mapa de $ciudad",
-                                    modifier = Modifier.size(80.dp)
-                                )
-                                Text(
-                                    text = ciudad,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer
-                                )
-                            }
-
+                            Image(
+                                painter = painterResource(id = city.imageRes),
+                                contentDescription = "Mapa de ${city.name}",
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = hora,
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(start = 16.dp)
+                                text = city.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        // Columna para la hora, con un estilo mucho más grande
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = viewModel.getLocalTime(city),
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
+
                 }
             }
         }
     }
 }
+
+
 
 
 /**
