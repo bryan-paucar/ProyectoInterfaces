@@ -97,7 +97,7 @@ fun AppScaffold() {
 
     // Crear el ViewModel aquí para que se mantenga en toda la app
     val temperaturaViewModel: TemperaturaViewModel = viewModel()
-    val horasViewModel: HorasViewModel = viewModel() // ViewModel compartido
+    val horasViewModel: HorasViewModel = viewModel()
     val contactosViewModel: ContactosViewModel = viewModel()
 
     Scaffold(
@@ -173,7 +173,7 @@ fun AppTopBar() {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer // Asegura contraste
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
             IconButton(onClick = { /* Sin funcionalidad, es estático */ }) {
@@ -190,39 +190,6 @@ fun AppTopBar() {
         )
     )
 }
-
-/*
-@Composable
-fun AppBottomBar(navController: NavController) {
-    val items = listOf(
-        Screen.Temperatura,
-        Screen.Horas,
-        Screen.Contactos
-    )
-
-    NavigationBar {
-        items.forEach { screen ->
-            NavigationBarItem(
-                selected = navController.currentDestination?.route == screen.route,
-                onClick = { navController.navigate(screen.route) },
-                label = { Text(text = screen.route.replaceFirstChar { it.uppercase() }) },
-                icon = {
-                    Icon(
-                        painter = painterResource(
-                            id = when (screen) {
-                                is Screen.Temperatura -> R.drawable.temp
-                                is Screen.Horas -> R.drawable.clock
-                                is Screen.Contactos -> R.drawable.contacts
-                            }
-                        ),
-                        contentDescription = screen.route
-                    )
-                }
-            )
-        }
-    }
-}
-*/
 
 /**
  * Composable que representa la barra de navegación inferior de la aplicación.
@@ -356,34 +323,35 @@ fun TemperaturaScreen(padding: PaddingValues, viewModel: TemperaturaViewModel) {
             else -> R.drawable.calor
         }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        // Box con la imagen de fondo y las temperaturas sobrepuesta
+        Box(
+            modifier = Modifier.size(210.dp)
         ) {
-            // Temperatura en °C a la izquierda
-            Text(
-                text = "${viewModel.temperatura.value.toInt()}°C",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
-
-            // Imagen de temperatura
             Image(
                 painter = painterResource(id = imagenRes),
                 contentDescription = "Imagen temperatura",
-                modifier = Modifier.size(160.dp) // Ajuste de tamaño para mejorar espacio
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-
-            // Temperatura en °F a la derecha
-            Text(
-                text = "${((viewModel.temperatura.value * 9 / 5) + 32).toInt()}°F",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
+            // Overlay con las temperaturas
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${viewModel.temperatura.value.toInt()}°C",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 35.sp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "${((viewModel.temperatura.value * 9 / 5) + 32).toInt()}°F",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 35.sp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
